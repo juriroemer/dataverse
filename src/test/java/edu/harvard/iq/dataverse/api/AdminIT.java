@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.api;
 
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import edu.harvard.iq.dataverse.DataFile;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import static io.restassured.RestAssured.given;
 import static jakarta.ws.rs.core.Response.Status.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -537,6 +539,19 @@ public class AdminIT {
         assertEquals(200, deleteUserToConvert.getStatusCode());
     }
     
+    
+    @Test
+    void testCreateUserViaAPI_WithInvalidJson() {
+        Response response = given()
+            .body("{invalid}")
+            .contentType(ContentType.JSON)
+            .post("/api/admin/authenticatedUsers");
+        
+        response.then()
+            .assertThat()
+            .statusCode(BAD_REQUEST.getStatusCode())
+            .body("message", containsString("Unexpected char"));
+    }
 
 
     @Test
